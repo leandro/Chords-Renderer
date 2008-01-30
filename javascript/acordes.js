@@ -1,4 +1,5 @@
 $(function() {
+	var teste = 0;
 	$('.js-acorde').each(function() {
 		var _0_s, _0_acordes = (_0_s = $.trim($(this).html())).split(/\s+/),
 			_0_graphics = strings(_0_acordes),
@@ -6,7 +7,7 @@ $(function() {
 			_0_t,
 			_0_o;
 
-		alert(pestana(_0_acordes));
+		//alert(pestana(_0_acordes));
 		$(this).attr('title', _0_s);
 		$(this).html('');
 		$(this).append(['<div class="acorde-bull acorde-bull-p', _0_graphics.disc,'"><img src="imagens/dec.disc.gif" width="5" height="5"></div>'].join(''));
@@ -25,13 +26,26 @@ function pressed_fingers(acorde_arr) {
 }
 
 function pestana(acorde_arr) {
-	if(pressed_fingers(acorde_arr).length > 4) { // terá que haver pestana
-		var zeros = acorde_arr.indexesOf('0');
-		alert(min(acorde_arr, function(b, a) { alert(b[a] + "ooo"); return b[a] > 0 ? a : false; }));
-		var minors = acorde_arr.indexesOf(acorde_arr[min(acorde_arr, function(b, a) { return b[a] > 0 ? a : false; })]);
-		return ["--" + zeros.join('-') + "--", "--" + minors.join('-') + "--"]
+	var pf;
+	if((pf = pressed_fingers(acorde_arr)).length > 4) { // terá que haver pestana
+		var mmin, zeros = acorde_arr.indexesOf('0'),
+			minors = acorde_arr.indexesOf(acorde_arr[mmin = min(acorde_arr, 0)]);
+		
+		if(zeros[0] < minors[0] && zeros[zeros.length - 1] > minors[minors.length - 1]) {
+			return minors;
+		} else {
+			minors[0] = zeros[0] > minors[0] ? zeros[0] + 1 : minors[0];
+			minors[minors.length - 1] = zeros[zeros.length - 1] > minors[minors.length - 1] ? zeros[zeros.length - 1] - 1 : minors[minors.length - 1];
+			return minors;
+		}
 	}
 	return [];
+}
+
+function mapeamento_casas(acorde_arr) {
+	var i = 0, t = acorde_arr.length, dup = acorde_arr.slice(0), r = {};
+	for(; i < t; i++) { r[acorde_arr[i]] = acorde_arr.indexesOf(acorde_arr[i]); }
+	return r;
 }
 
 function strings(acorde_arr) {
@@ -53,27 +67,30 @@ Array.prototype.indexesOf = function(value) {
 	return r;
 }
 
-Array.prototype.remove = function(index) {
-	return (this.splice(index, 1), this);
+Array.prototype.remove = function(indexes) {
+	indexes = indexes instanceof Array ? indexes : [indexes];
+	var t = indexes.length, r = [];
+	for(; --t > -1;) r[r.length] = this.splice(indexes[t], 1);
+	return r.reverse();
 }
 
-function min(arr, callback) {
+function min(arr, mind) {
 	// retorna o menor valor numerico de #arr desde que o menor satisfaca a callback
 	var
 		i = 1,
 		t = arr.length,
 		min = 0;
 	
-	for(; i < t; i++) arr[min] > arr[i] && (callback ? callback.apply(false, [arr, min]) : 1) && (min = i);
-	return callback ? callback.apply(false, [arr, min]) : min;
+	for(; i < t; i++) arr[min] > arr[i] && mind < arr[i] && (min = i);
+	return mind < arr[min] ? min : -1;
 }
 
-function max(arr, callback) {
+function max(arr, maxd) {
 	var
 		i = 1,
 		t = arr.length,
 		max = 0;
 	
-	for(; i < t; i++) arr[max] < arr[i] && (callback ? callback.apply(false, [arr, max]) : 1) && (max = i);
-	return callback ? ((max = callback.apply(false, [arr, max])) ? max : false) : max;
+	for(; i < t; i++) arr[max] < arr[i] && maxd > arr[i] && (max = i);
+	return maxd > arr[max] ? max : -1;
 }
