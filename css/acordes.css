@@ -1,0 +1,29 @@
+body,form,ol,ul,li,p,h1,h2,h3,h4,h5,h6,table,tr,td,img,dt,dd,dl {border-width:0;margin:0;padding:0;}
+
+.js-acorde {
+	background:url("../imagens/bg.grid.gif") no-repeat 14px 0;
+	font-size:0;
+	height:70px;
+	line-height:0;
+	margin:20px 0;
+	position:relative;
+	width:72px;
+}
+
+.acorde-bull {
+	background:#eee;
+	height:5px;
+	position:absolute;
+	top:65px;
+	width:5px;
+}
+.acorde-bull-p0 {left:12px;}
+.acorde-bull-p1 {left:23px;}
+.acorde-bull-p2 {left:34px;}
+.acorde-bull-p3 {left:45px;}
+.acorde-bull-p4 {left:56px;}
+.acorde-bull-p5 {left:67px;}
+
+/*
+.notext {font-size:0;letter-spacing:-2000px;overflow:hidden;text-decoration:none;text-indent:-2000px;}
+*/

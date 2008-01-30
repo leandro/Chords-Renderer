@@ -1,0 +1,18 @@
+function pestana(acorde_arr) {
+	var
+		acorde_str = acorde_arr.join(''),
+		seq = acorde_str.match(/([1-9]\d?)\1{2,}/),
+		num,
+		rs;
+	if(!seq) return false;
+	//x10101099
+	seq = seq[0];
+	num = +seq[1];
+	rs = acorde_str.split(seq);
+	
+	if(rs[1]) {
+		
+	}
+	
+	return seq && [acorde_str.indexOf(seq[0]), seq[0].length] || [];
+}
