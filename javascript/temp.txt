@@ -1,18 +1,16 @@
 function pestana(acorde_arr) {
-	var
-		acorde_str = acorde_arr.join(''),
-		seq = acorde_str.match(/([1-9]\d?)\1{2,}/),
-		num,
-		rs;
-	if(!seq) return false;
-	//x10101099
-	seq = seq[0];
-	num = +seq[1];
-	rs = acorde_str.split(seq);
-	
-	if(rs[1]) {
+	var pf;
+	if((pf = pressed_fingers(acorde_arr)).length > 4) { // terá que haver pestana
+		var mmin, zeros = acorde_arr.indexesOf('0'),
+			minors = acorde_arr.indexesOf(acorde_arr[mmin = min(acorde_arr, 0)]);
 		
+		if(zeros[0] < minors[0] && zeros[zeros.length - 1] > minors[minors.length - 1]) {
+			return minors;
+		} else {
+			minors[0] = zeros[0] > minors[0] ? zeros[0] + 1 : minors[0];
+			minors[minors.length - 1] = zeros[zeros.length - 1] > minors[minors.length - 1] ? zeros[zeros.length - 1] - 1 : minors[minors.length - 1];
+			return minors;
+		}
 	}
-	
-	return seq && [acorde_str.indexOf(seq[0]), seq[0].length] || [];
+	return [];
 }
