@@ -30,9 +30,12 @@ $(function() {
 			$(this).append(['<div class="acorde-bull acorde-bull-p', _0_o[_0_i],'"><img src="imagens/dec.circle.gif" width="5" height="5"></div>'].join(''));
 		// desenhando as pestanas
 		for(_0_i = 0, _0_o = _0_map.pestanas, _0_t = _0_o.length; _0_i < _0_t; _0_i++) {
+			var sub = merge_all(object_values(_0_map.map, function(o, e) { return e < _0_o[_0_i]; }), true),
+				conflito = 6 - _0_pestanas[_0_o[_0_i]][0] - array_diff(_0_pestanas[_0_o[_0_i]], sub).length;
+			//alert(to_s(_0_pestanas));
 			_0_dyf = _0_dy + (_0_o[_0_i] - _0_min + _0_inc) * 12;
 			_0_dxf = (_0_tmp = _0_pestanas[_0_o[_0_i]][0]) * 11 + _0_dx;
-			_0_dw = 60 - _0_tmp * 11;
+			_0_dw = 60 - _0_tmp * 11 - (sub.length && conflito * 11 || 0);
 			if(_0_max > 5)
 				$(this).append(['<div class="acorde-pricasa">', _0_min,'</div>'].join(''));
 			$(this).append(['<div class="acorde-pestana" style="left:', _0_dxf,'px;top:', _0_dyf,'px;width:', _0_dw,'px;"></div>'].join(''));
@@ -47,17 +50,12 @@ $(function() {
 		_0_dy = 4;
 		_0_dx = 10;
 		for(_0_i = 0, _0_o = _0_tmp, _0_tmp = object_keys(_0_pestanas), _0_t = _0_o.length; _0_i < _0_t; _0_i++, _0_dedo_atual = 1) {
-			_0_dedo_atual += lesser_then(_0_tmp, _0_o[_0_i]).length + _0_i;
+			_0_dedo_atual += lesser_than(_0_tmp, _0_o[_0_i]).length + _0_i;
 			_0_dyf = _0_dy + (_0_o[_0_i] - _0_min + _0_inc) * 12;
 			_0_dxf = cordas_arr[_0_i] * 11 + _0_dx;
 			$(this).append(['<div class="acorde-dedo" style="left:', _0_dxf,'px;top:', _0_dyf,
 				'px;"><img src="imagens/dec.dedo', _0_dedo_atual,'.gif" width+"9" height="9" /></div>'].join(''));
-			//_0_dedos[_0_dedo_atual] = [_0_o[_0_i] - _0_min + _0_inc, cordas_arr[_0_i]];
-			//alert(to_s(_0_o) + "\n" + _0_o[_0_i] + "\n" + _0_dedo_atual);
 		}
-		teste = 1;
-		//alert(to_s(_0_dedos));
-		//alert(to_s(_0_o));
 	});
 });
 
@@ -134,7 +132,7 @@ function repeat_to_array(value, times) {
 	return r;
 }
 
-function lesser_then(arr, num) {
+function lesser_than(arr, num) {
 	// retorna todos os numeros menores que num
 	var i = 0, t = arr.length, r = [];
 	for(; i < t; i++)
@@ -168,6 +166,36 @@ function max(arr, maxd) {
 	maxd = typeof maxd == 'undefined' ? Infinity : maxd;
 	for(; i < t; i++) !isNaN(arr[i]) && arr[max] < arr[i] && maxd > arr[i] && (max = i);
 	return maxd > arr[max] ? max : -1;
+}
+function array_diff(a, b) {
+	// retorna o array #a menos o array #b
+	var r = a.slice(0), i, t1 = a.length, t2 = b.length;
+	for(; --t1 > -1;) {
+		for(i = 0; i < t2 && b[i] != a[t1]; i++);
+		if(b[i] == a[t1]) r.splice(t1, 1);
+	}
+	return r;
+}
+function is_enum(obj) {
+	return obj instanceof Array ? true : (typeof obj == 'object' ? true : false);
+}
+function merge_all(enum, recursive) {
+	var type = enum instanceof Array ? 'array' : (typeof enum == 'object' ? 'object' : false), r = [];
+	if(!type) return r;
+	
+	if(type == 'array') {
+		var i = 0, t = enum.length;
+		for(; i < t; i++) {
+			r = r.concat(is_enum(enum[i]) && recursive && merge_all(enum[i], true) || enum[i]);
+		}
+	} else {
+		for(var e in enum) {
+			if(!(e in Object.prototype)) {
+				r = r.concat(is_enum(enum[e]) && recursive && merge_all(enum[e], true) || enum[e]);
+			}
+		}
+	}
+	return r;
 }
 
 function object_remove_keys(obj, p) {
@@ -219,7 +247,6 @@ function object_values(obj, filter_fn) {
 	}
 	return r;
 };
-
 
 function object_num_keys(obj) {
 	var c = 0, e;
