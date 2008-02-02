@@ -14,3 +14,18 @@ function pestana(acorde_arr) {
 	}
 	return [];
 }
+
+		// desenhando as posicoes dos dedos
+		for(_0_i = _0_o.length; (_0_o = get_object_key(_0_map.map, _0_i)) !== false; _0_i++) {
+			_0_tmp = _0_o;
+			while(_0_acordes[min(_0_acordes, _0_tmp)] < +_0_o) _0_tmp++;
+		}
+
+		// desenhando as posicoes dos dedos
+		for(_0_i = 0, _0_t = _0_acordes.length, _0_dedo_atual = 1; _0_i < _0_t; _0_i++, _0_dedo_atual++) {
+			if(_0_acordes[_0_i].toLowerCase() == 'x') continue;
+			for(var i = 0, t = _0_map.pestanas.length, dedo_inc = 0; i < t && _0_acordes[_0_i] != _0_map.pestanas[i]; i++)
+				_0_map.pestanas[i] < _0_acordes[_0_i] && dedo_inc++;
+			if(_0_acordes[_0_i] != _0_map.pestanas[i]) _0_dedos[_0_dedo_atual + dedo_inc] = [_0_acordes[_0_i] - _0_min, _0_i];
+		}
+
