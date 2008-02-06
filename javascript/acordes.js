@@ -26,7 +26,7 @@ $(function() {
 
 			$(obj).attr('title', _0_s);
 			$(obj).children('*').not('h4').hide();
-			!_0_pos && $(obj).append('<h4 class="acorde-head"><div>' + $(obj).find('div:eq(0)').html() + '<a href="#">&gt;</a></div></h4>');
+			!_0_pos && $(obj).append('<h4 class="acorde-head"><div>' + $(obj).find('div:eq(0)').html() + '<a href="#">&raquo;</a></div></h4>');
 			!_0_pos && $(obj).find('a').bind('click', function() {
 				var t = $(_0_htmlobj).find('li').length, pos = (++_0_pos) % t;
 				if(!t) return false;
@@ -70,7 +70,7 @@ $(function() {
 					'px;"><img src="imagens/dec.dedo', _0_dedo_atual,'.gif" width+"9" height="9" /></div>'].join(''));
 			}
 		})(this);
-	});
+	}).fadeTo('slow', 0.7);
 });
 
 function variacoes(htmlobj) {
@@ -135,12 +135,14 @@ function cordas(acorde_arr) {
 }
 
 Array.prototype.indexesOf = function(value) {
+	// retorna todos os índicesdo array que são iguais a #value
 	var i = 0, t = this.length, r = [];
 	for(; i < t; i++) { if(this[i] === value) r[r.length] = i; }
 	return r;
 };
 
 Array.prototype.remove = function(indexes) {
+	// remove os elementos de indíces iguais a #indexes (altera o array original)
 	indexes = indexes instanceof Array ? indexes : [indexes];
 	var t = indexes.length, r = [];
 	for(; --t > -1;) r[r.length] = this.splice(indexes[t], 1);
@@ -152,17 +154,17 @@ function repeat_to_array(value, times) {
 	return r;
 }
 
-function array_rot(arr, num, dir) {
+function array_rot(arr, num) {
+	// rotaciona um array para esquerda ou direita #num casas
 	var t = arr.length, r;
 	if(t == num) return arr;
-	dir = dir ? (typeof dir == 'string' ? (dir.toLowerCase() == 'left' ? -1 : 1) : (dir < 0 ? -1 : 1) ) : 1; // -dir -> 'left'; dir -> 'right'
-	if(dir == -1) r = [].concat(arr.slice(num % t), arr.slice(0, num % t));
+	if(num < 0) r = [].concat(arr.slice((-num) % t), arr.slice(0, (-num) % t));
 	else r = [].concat(arr.slice(t - (num % t)), arr.slice(0, t - (num % t)));
 	return r;
 }
 
 function lesser_than(arr, num) {
-	// retorna todos os numeros menores que num
+
 	var i = 0, t = arr.length, r = [];
 	for(; i < t; i++)
 		arr[i] < num && (r[r.length] = arr[i]);
