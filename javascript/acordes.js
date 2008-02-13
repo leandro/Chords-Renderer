@@ -15,7 +15,7 @@ $(function() {
 		
 		(_0_fn = function(obj) {
 			var _0_acordes = (_0_s = $.trim($(obj).find('div:eq(1)').html())).split(/\s+/),
-			_0_min = _0_acordes[min(_0_acordes)],
+			_0_min = _0_acordes[min(_0_acordes, 0)],
 			_0_max = _0_acordes[max(_0_acordes)],
 			_0_graphics = cordas(_0_acordes),
 			_0_dx = 12,
@@ -23,7 +23,7 @@ $(function() {
 			_0_map = pestana(_0_acordes),
 			_0_pestanas = object_remove_keys(_0_map.map, _0_map.pestanas),
 			_0_inc = _0_max > 5 ? 0 : _0_min - 1;
-
+			
 			$(obj).attr('title', _0_s);
 			$(obj).children('*').not('h4').hide();
 			!_0_pos && $(obj).append('<h4 class="acorde-head"><div>' + $(obj).find('div:eq(0)').html() + '<a href="#">&raquo;</a></div></h4>');
@@ -49,10 +49,11 @@ $(function() {
 				_0_dyf = _0_dy + (_0_o[_0_i] - _0_min + _0_inc) * 12;
 				_0_dxf = (_0_tmp = _0_pestanas[_0_o[_0_i]][0]) * 11 + _0_dx;
 				_0_dw = 60 - _0_tmp * 11 - (sub.length && conflito * 11 || 0);
-				if(_0_max > 5)
-					$(obj).append(['<div class="acorde-pricasa">', _0_min,'</div>'].join(''));
 				$(obj).append(['<div class="acorde-pestana" style="left:', _0_dxf,'px;top:', _0_dyf,'px;width:', _0_dw,'px;"></div>'].join(''));
 			}
+			// indicando a casa inicial
+			if(_0_max > 5)
+				$(obj).append(['<div class="acorde-pricasa">', _0_min,'</div>'].join(''));
 			// desenhando as posicoes dos dedos
 			var cordas_arr = [];
 			object_remove_keys(_0_map.map, ['0', 'X']);
@@ -181,7 +182,7 @@ function min(arr, mind) {
 	while(isNaN(arr[min++]));
 	min--;
 	mind = typeof mind == 'undefined' ? -Infinity : mind;
-	for(; i < t; i++) !isNaN(arr[i]) && arr[min] > arr[i] && mind < arr[i] && (min = i);
+	for(; i < t; i++) !isNaN(arr[i]) && +arr[min] > +arr[i] && mind < +arr[i] && (min = i);
 	return mind < arr[min] ? min : -1;
 }
 
