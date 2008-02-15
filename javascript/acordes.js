@@ -19,7 +19,7 @@ $(function() {
 			_0_max = _0_acordes[max(_0_acordes)],
 			_0_graphics = cordas(_0_acordes),
 			_0_dx = 12,
-			_0_dy = 21,
+			_0_dy = 21, 
 			_0_map = pestana(_0_acordes),
 			_0_pestanas = object_remove_keys(_0_map.map, _0_map.pestanas),
 			_0_inc = _0_max > 5 ? 0 : _0_min - 1;
@@ -44,8 +44,9 @@ $(function() {
 				$(obj).append(['<div class="acorde-bull acorde-bull-p', _0_o[_0_i],'"><img src="imagens/dec.circle.gif" width="5" height="5"></div>'].join(''));
 			// desenhando as pestanas
 			for(_0_i = 0, _0_o = _0_map.pestanas, _0_t = _0_o.length; _0_i < _0_t; _0_i++) {
-				var sub = merge_all(object_values(_0_map.map, function(o, e) { return e < _0_o[_0_i]; }), true),
+				var sub = merge_all(object_values(_0_map.map, function(o, e) { return +e < +_0_o[_0_i]; }), true),
 					conflito = 6 - _0_pestanas[_0_o[_0_i]][0] - array_diff(_0_pestanas[_0_o[_0_i]], sub).length;
+				alert(sub);
 				_0_dyf = _0_dy + (_0_o[_0_i] - _0_min + _0_inc) * 12;
 				_0_dxf = (_0_tmp = _0_pestanas[_0_o[_0_i]][0]) * 11 + _0_dx;
 				_0_dw = 60 - _0_tmp * 11 - (sub.length && conflito * 11 || 0);
@@ -97,9 +98,11 @@ function pestana(acorde_arr) {
 		for(e in map) { c < 2 && map[e].length == 2 && ++c && (tmp[tmp.length] = e); }
 		return r;
 	} else if(pf.length == 5) {
-		var mmin = acorde_arr[min(acorde_arr, 0)], minp, tmp = r.pestanas;
+		var mmin = acorde_arr[min(acorde_arr, 0)], minp, tmp = r.pestanas, t;
 
-		minp = object_key(map, 0);
+		minp = object_key(map, 0); // PAREI AQUI
+		if((t = map[mmin].length) > 1 && (!map['0'] || map['0'][0] < map[mmin] || map['0'][0] > map[mmin][t - 1])) 
+			return (tmp[tmp.length] = mmin, r);
 		if(mmin != minp && map[minp][0] < map[mmin][map[mmin].length - 1]) { return (tmp[tmp.length] = object_key(map, 1), r); }
 		return (tmp[tmp.length] = minp, r);
 	}
