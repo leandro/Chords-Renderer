@@ -46,7 +46,6 @@ $(function() {
 			for(_0_i = 0, _0_o = _0_map.pestanas, _0_t = _0_o.length; _0_i < _0_t; _0_i++) {
 				var sub = merge_all(object_values(_0_map.map, function(o, e) { return +e < +_0_o[_0_i]; }), true),
 					conflito = 6 - _0_pestanas[_0_o[_0_i]][0] - array_diff(_0_pestanas[_0_o[_0_i]], sub).length;
-				alert(sub);
 				_0_dyf = _0_dy + (_0_o[_0_i] - _0_min + _0_inc) * 12;
 				_0_dxf = (_0_tmp = _0_pestanas[_0_o[_0_i]][0]) * 11 + _0_dx;
 				_0_dw = 60 - _0_tmp * 11 - (sub.length && conflito * 11 || 0);
@@ -58,10 +57,11 @@ $(function() {
 			// desenhando as posicoes dos dedos
 			var cordas_arr = [];
 			object_remove_keys(_0_map.map, ['0', 'X']);
-			for(_0_i = 0, _0_tmp = [], _0_o = object_keys(_0_map.map).sort(), _0_t = _0_o.length; _0_i < _0_t; _0_i++) {
+			for(_0_i = 0, _0_tmp = [], _0_o = object_keys(_0_map.map).sort(function(a, b) { return a - b; }), _0_t = _0_o.length; _0_i < _0_t; _0_i++) {
 				_0_tmp = _0_tmp.concat(repeat_to_array(_0_o[_0_i], _0_map.map[_0_o[_0_i]].length));
 				cordas_arr = cordas_arr.concat(_0_map.map[_0_o[_0_i]]);
 			}
+			// _0_tmp armazena as casas que serão pressionadas na ordem corda 6 -> 1 sem levar em conta os 'X' e os '0' (X 0 1 1 2 X -> 1 1 2)
 			_0_dy = 18;
 			_0_dx = 10;
 			for(_0_i = 0, _0_o = _0_tmp, _0_tmp = object_keys(_0_pestanas), _0_t = _0_o.length; _0_i < _0_t; _0_i++, _0_dedo_atual = 1) {
@@ -171,7 +171,7 @@ function lesser_than(arr, num) {
 
 	var i = 0, t = arr.length, r = [];
 	for(; i < t; i++)
-		arr[i] < num && (r[r.length] = arr[i]);
+		+arr[i] < num && (r[r.length] = arr[i]);
 	return r;
 }
 
@@ -180,13 +180,17 @@ function min(arr, mind) {
 	var
 		i = 1,
 		t = arr.length,
-		min = 0;
+		min = 0,
+		num;
 
-	while(isNaN(arr[min++]));
+	while(isNaN(arr[min++]) || mind >= +arr[min - 1]);
 	min--;
 	mind = typeof mind == 'undefined' ? -Infinity : mind;
-	for(; i < t; i++) !isNaN(arr[i]) && +arr[min] > +arr[i] && mind < +arr[i] && (min = i);
-	return mind < arr[min] ? min : -1;
+	for(; i < t; i++) {
+		num = isNaN(arr[i]) ? -Infinity : +arr[i];
+		+arr[min] > num && mind < num && (min = i);
+	}
+	return mind < +arr[min] ? min : -1;
 }
 
 function max(arr, maxd) {
