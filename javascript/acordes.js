@@ -1,177 +1,327 @@
 $(function() {
-	$('.js-acorde').each(function() {
-		var _0_s,
-			_0_i = 0,
-			_0_t,
-			_0_o,
-			_0_diff,
-			_0_dw,
-			_0_tmp,
-			_0_dedos = [],
-			_0_dedo_atual = 1,
-			_0_pos = 0,
-			_0_htmlobj = $(this).get(0),
-			_0_fn;
-		
-		(_0_fn = function(obj) {
-			var _0_acordes = (_0_s = $.trim($(obj).find('div:eq(1)').html())).split(/\s+/),
-			_0_min = _0_acordes[min(_0_acordes, 0)],
-			_0_max = _0_acordes[max(_0_acordes)],
-			_0_graphics = cordas(_0_acordes),
-			_0_dx = 12,
-			_0_dy = 21, 
-			_0_map = pestana(_0_acordes),
-			_0_pestanas = object_remove_keys(_0_map.map, _0_map.pestanas),
-			_0_inc = _0_max > 5 ? 0 : _0_min - 1;
-			
-			$(obj).attr('title', _0_s);
-			$(obj).children('*').not('h4').hide();
-			!_0_pos && $(obj).append('<h4 class="acorde-head"><div>' + $(obj).find('div:eq(0)').html() + '<a href="#">&raquo;</a></div></h4>');
-			!_0_pos && $(obj).find('a').bind('click', function() {
-				var t = $(_0_htmlobj).find('li').length, pos = (++_0_pos) % t;
-				if(!t) return false;
-				$(_0_htmlobj).find('div:eq(1)').html($(_0_htmlobj).find('li:eq(' + pos + ')').html());
-				_0_fn(_0_htmlobj);
-			});
-			!_0_pos && Drag.init($(obj).find('h4').get(0), $(obj).get(0));
-			$('h4', obj).nextAll().remove();
-
-			// desenhando os marcadores de como as cordas devem ser tocadas
-			$(obj).append(['<div class="acorde-bull acorde-bull-p', _0_graphics.disc,'"><img src="imagens/dec.disc.gif" width="5" height="5"></div>'].join(''));
-			for(_0_i = 0, _0_o = _0_graphics.xis, _0_t = _0_o.length; _0_i < _0_t; _0_i++)
-				$(obj).append(['<div class="acorde-bull acorde-bull-p', _0_o[_0_i],'"><img src="imagens/dec.xis.gif" width="5" height="5"></div>'].join(''));
-			for(_0_o = _0_graphics.circles, _0_i = 0, _0_t = _0_o.length; _0_i < _0_t; _0_i++)
-				$(obj).append(['<div class="acorde-bull acorde-bull-p', _0_o[_0_i],'"><img src="imagens/dec.circle.gif" width="5" height="5"></div>'].join(''));
-			// desenhando as pestanas
-			for(_0_i = 0, _0_o = _0_map.pestanas, _0_t = _0_o.length; _0_i < _0_t; _0_i++) {
-				var sub = merge_all(object_values(_0_map.map, function(o, e) { return +e < +_0_o[_0_i]; }), true),
-					conflito = 6 - _0_pestanas[_0_o[_0_i]][0] - array_diff(_0_pestanas[_0_o[_0_i]], sub).length;
-				_0_dyf = _0_dy + (_0_o[_0_i] - _0_min + _0_inc) * 12;
-				_0_dxf = (_0_tmp = _0_pestanas[_0_o[_0_i]][0]) * 11 + _0_dx;
-				_0_dw = 60 - _0_tmp * 11 - (sub.length && conflito * 11 || 0);
-				$(obj).append(['<div class="acorde-pestana" style="left:', _0_dxf,'px;top:', _0_dyf,'px;width:', _0_dw,'px;"></div>'].join(''));
-			}
-			// indicando a casa inicial
-			if(_0_max > 5)
-				$(obj).append(['<div class="acorde-pricasa">', _0_min,'</div>'].join(''));
-			// desenhando as posicoes dos dedos
-			var cordas_arr = [];
-			object_remove_keys(_0_map.map, ['0', 'X']);
-			for(_0_i = 0, _0_tmp = [], _0_o = object_keys(_0_map.map).sort(function(a, b) { return a - b; }), _0_t = _0_o.length; _0_i < _0_t; _0_i++) {
-				_0_tmp = _0_tmp.concat(repeat_to_array(_0_o[_0_i], _0_map.map[_0_o[_0_i]].length));
-				cordas_arr = cordas_arr.concat(_0_map.map[_0_o[_0_i]]);
-			}
-			// _0_tmp armazena as casas que serão pressionadas na ordem corda 6 -> 1 sem levar em conta os 'X' e os '0' (X 0 1 1 2 X -> 1 1 2)
-			_0_dy = 18;
-			_0_dx = 10;
-			for(_0_i = 0, _0_o = _0_tmp, _0_tmp = object_keys(_0_pestanas), _0_t = _0_o.length; _0_i < _0_t; _0_i++, _0_dedo_atual = 1) {
-				_0_dedo_atual += lesser_than(_0_tmp, _0_o[_0_i]).length + _0_i;
-				_0_dyf = _0_dy + (_0_o[_0_i] - _0_min + _0_inc) * 12;
-				_0_dxf = cordas_arr[_0_i] * 11 + _0_dx;
-				$(obj).append(['<div class="acorde-dedo" style="left:', _0_dxf,'px;top:', _0_dyf,
-					'px;"><img src="imagens/dec.dedo', _0_dedo_atual,'.gif" width+"9" height="9" /></div>'].join(''));
-			}
-		})(this);
-	}).fadeTo('slow', 0.7);
+	A = new AcordeDOM('.js-acorde');
+	A.render();
 });
 
-function variacoes(htmlobj) {
-	var r = [], els = $(htmlobj).find('div:eq(1)').add($(htmlobj).find('li')).get(), t = els.length;
-	if(t > 1) $(els).each(function() { r[r.length] = this.innerHTML; });
-	return r;
-}
-
-function pressed_fingers(acorde_arr) {
-	// conta quantos numeros acima de 0 diferentes entre si existem no acorde para saber se será necessário pestana
-	var t = acorde_arr.length, r = acorde_arr.slice(0);	
-	for(; --t > -1;) { if(r[t].toLowerCase() == 'x' || r[t] == '0') r.remove(t); }
-	return r || [];
-}
-
-function pestana(acorde_arr) {
-	// retorna o mapeamento das cordas em que haverá 1 ou 2 pestanas
-	var pf, map = mapeamento_casas(acorde_arr), r = {map: map, pestanas: []};
-	// terá que haver pelo menos uma pestana
-	if((pf = pressed_fingers(acorde_arr)).length == 6) {
-		var e, c = 0, tmp = r.pestanas;
-		if(map[e = object_key(map, 0)].length > 2) return (tmp[tmp.length] = e, r);
-		for(e in map) { c < 2 && map[e].length == 2 && ++c && (tmp[tmp.length] = e); }
-		return r;
-	} else if(pf.length == 5) {
-		var mmin = acorde_arr[min(acorde_arr, 0)], minp, tmp = r.pestanas, t;
-
-		minp = object_key(map, 0); // PAREI AQUI
-		if((t = map[mmin].length) > 1 && (!map['0'] || map['0'][0] < map[mmin] || map['0'][0] > map[mmin][t - 1])) 
-			return (tmp[tmp.length] = mmin, r);
-		if(mmin != minp && map[minp][0] < map[mmin][map[mmin].length - 1]) { return (tmp[tmp.length] = object_key(map, 1), r); }
-		return (tmp[tmp.length] = minp, r);
-	}
-	return r;
-}
-
-function mapeamento_casas(acorde_arr) {
-	// retorna um hash (object) do mapeamento das casas tocadas e ocorrencia de cada
-	var i = 0, t = acorde_arr.length, r = {}, ind, rtmp = [];
-	var fnord = function(a, b) {
-		return a[1].length > b[1].length ? -1 :
-			(a[1].length == b[1].length ? (a[0] > b[0] ? 1 : -1) : 1);
+var AcordeDOM = function(acorde_seletor) {
+	var root = this;
+	
+	// propriedades publicas
+	this.pestana_left = 12;
+	this.pestana_top = 21;
+	this.dedo_left = 10;
+	this.dedo_top = 18;
+	this.draw = function(obj, _acorde) {
+		var
+			acorde = new Acorde(_acorde instanceof Array ? _acorde : _acorde.split(/\s+/)),
+			cordas = acorde.cordas_status(),
+			dedos_pos = acorde.dedos_pos(false),
+			i, t, o, dyf, dxf, dw, tmp;
+				
+		$('h4', obj).nextAll().remove();
+		
+		// renderizando quais cordas serao pressionadas e etc.
+		$(obj).append('<div class="acorde-bull acorde-bull-p' + cordas.disc + '"><img src="imagens/dec.disc.gif" width="5" height="5"></div>');
+		for(i = 0, o = cordas.xis, t = o.length; i < t; i++)
+			$(obj).append('<div class="acorde-bull acorde-bull-p' + o[i] + '"><img src="imagens/dec.xis.gif" width="5" height="5"></div>');
+		for(i = 0, o = cordas.circles, t = o.length; i < t; i++)
+			$(obj).append('<div class="acorde-bull acorde-bull-p' + o[i] + '"><img src="imagens/dec.circle.gif" width="5" height="5"></div>');
+		
+		// desenhando onde os dedos e como serao pressionados
+		for(i = 0, o = dedos_pos, t = o.length; i < t; i++) {
+			if(o[i][1] instanceof Array) { // pestana
+				dyf = root.pestana_top + o[i][0] * 12;
+				dxf = root.pestana_left + o[i][1][0] * 11;
+				dw = (o[i][1][1] - 1) * 11 + 5;
+				$(obj).append('<div class="acorde-pestana" style="left:' + dxf + 'px;top:' + dyf + 'px;width:' + dw + 'px;"></div>');
+			} else { // dedos em uma unica nota
+				dyf = root.dedo_top + o[i][0] * 12;
+				dxf = root.dedo_left + o[i][1] * 11;
+				$(obj).append('<div class="acorde-dedo" style="left:' + dxf + 'px;top:' + dyf +
+					'px;"><img src="imagens/dec.dedo' + (i + 1) + '.gif" width+"9" height="9" /></div>');
+			}
+		}
+		
+		// indicando a casa raiz (piso) no desenho
+		if(acorde.casa_piso > 1)
+			$(obj).append(['<div class="acorde-pricasa">' + acorde.casa_piso + '</div>'].join(''));
 	};
-	for(; i < t; i++) {
-		ind = acorde_arr.indexesOf(acorde_arr[i]);
-		rtmp[rtmp.length] = [acorde_arr[i], ind];
-		//ind.length >= min && (rtmp[rtmp.length] = [acorde_arr[i], ind]);
+	this.render = function() {
+		$(acorde_seletor).each(function() {
+			var
+				obj = $(this),
+				acorde_str,
+				acorde = (acorde_str = $.trim(obj.find('div:eq(1)').html())).split(/\s+/),
+				variacao_handler = new AcordeVariacao(acorde);
+			
+			obj.attr('title', acorde_str);
+			obj.children().not('h4').hide();
+			obj.append('<h4 class="acorde-head"><div>' + obj.find('div:eq(0)').html() + '<a href="#">&raquo;</a></div></h4>');
+			obj.find('li').each(function() { variacao_handler.insere_variacao($(this).html().split(/\s+/)); });
+			obj.find('a').bind('click', function() {
+				if(variacao_handler.variacoes_qtde() < 2) return false;
+				root.draw(obj, variacao_handler.prox_variacao());
+			});
+			Drag.init(obj.find('h4').get(0), obj.get(0));
+			root.draw(obj, acorde);
+		}).fadeTo('slow', 0.7);
 	}
-	for(i = 0, t = rtmp.length, rtmp.sort(fnord); i < t; i++) r[rtmp[i][0]] = rtmp[i][1];
-	return r;
+}
+var AcordeVariacao = function(acorde_arr) {
+	// propriedades privadas (closures)
+	var acorde = typeof acorde_arr == 'string' ? acorde_arr.split(' ') : acorde_arr, root = this, variacoes = [];
+	
+	// propriedades públicas
+	this.variacao_pos = 0;
+	
+	// métodos públicos
+	(this.insere_variacao = function(_acorde_arr) {
+		var acorde_arr = typeof _acorde_arr == 'string' ? _acorde_arr.split(' ') : _acorde_arr;
+		variacoes[variacoes.length] = acorde_arr;
+		return root;
+	})(acorde);
+	this.prox_variacao = function() {
+		return variacoes[++root.variacao_pos % variacoes.length];
+	};
+	this.variacao_atual = function() {
+		return variacoes[root.variacao_pos];
+	};
+	this.variacoes_qtde = function() {
+		return variacoes.length;
+	};
+}
+var Acorde = function(acorde_arr) { // esperado um array com 6 elementos numéricos ou 'x'|'X'
+	// dependencias: min(); max(); array_repeated(); object_num_keys();
+	// propriedades privadas
+	var
+		acorde = typeof acorde_arr == 'string' ? acorde_arr.split(' ') : acorde_arr,
+		root = this,
+		casas_visuais = 5,
+		nmin = min(acorde_arr, 0),
+		nmax = max(acorde_arr),
+		xx = 0;
+	
+	// métodos privados
+	var
+		num_press = function(acorde_arr) {
+			// conta quantos numeros acima de 0 e diferentes de 'x' para saber se será necessário pestana
+			var t = acorde_arr.length, c = 0, r = acorde_arr;
+			for(; --t > -1; c += (r[t] + '').toLowerCase() != 'x' && (r[t] + '') !== '0' ? 1 : 0);
+			return c;
+		},
+		casa_piso = function() {
+			// retorna a menor casa visualmente falando
+			return casas_visuais >= acorde[nmax] ? 1 : acorde[nmin];
+		},
+		pestana_fronteira = function(acorde, casa) {
+			var sequencia = array_right_interval(acorde, casa); // [inicio, casas]
+			return sequencia[0] + sequencia[1] - 1 == 5 ? sequencia : null;
+		},
+		pestanas = function() {
+			// retorna as pestanas que houver no acorde no formato: [[v0, tam, casa]{1,3}]|null
+			var
+				hash = array_repeated(acorde, 2),
+				casas = object_keys(hash).sort(function(a, b) { return +a < +b ? -1 : 1; }),
+				t = casas.length,
+				pressed = num_press(acorde),
+				intervalalos,
+				tmp,
+				i = 0;
+
+			if(pressed == 5) { // 2 2 3 0 3 3
+				if(t == 2) {
+					intervalos = [array_right_interval(acorde, casas[0]), array_right_interval(acorde, casas[1])]; // [[a,b], [c,d]]
+					if(intervalos[0][0] + intervalos[0][1] >= intervalos[1][0] + intervalos[1][1]) {
+						return [array_right_interval(acorde, casas[0]).concat(casas[0])];
+					} else {
+						return [array_right_interval(acorde, casas[1]).concat(casas[0])];
+					}
+				}
+				return [array_right_interval(acorde, casas[0]).concat(casas[0])]; // t = 1 nesse caso (obrigatoriamente)
+			} else if(pressed == 6) {
+				if(hash[casas[0]].length > 2 && (tmp = pestana_fronteira(acorde, casas[0])))
+					return [tmp.concat(casas[0])];
+
+				if(t > 1) {
+					// se chegou até aqui então haverá 2 pestanas (ou até 3, se é que existe acorde com 3 pestanas)
+					var
+						pnpc = [], // #pnpc(pestana na primeira corda): contem as casas cuja pestana vai até a primeira corda
+						intervalos = [],
+						soma_notas = 0;
+
+					for(; i < t; i++) {
+						intervalos[intervalos.length] = array_right_interval(acorde, casas[i]).concat(casas[i]);
+					}
+					intervalos.sort(function(a, b) {
+						var x, y;
+						return (x = a[0] + a[1]) > (y = b[0] + b[1]) ? -1 : ( x == y ? (+a[2] < +b[2] ? -1 : 1) : 1 );
+					});
+					return [intervalos[0], intervalos[1]];
+				}
+				return [];
+			} else {
+				return [];
+			}
+		},
+		cordas_status = function() {
+			// retorna um object('hash') indicando quais cordas nao serao tocadas, a primeira a ser tocada e as demais a serem tocadas
+			var i = 0, t = acorde.length, r = {circles: [], disc: -1, xis: []};
+			for(; i < t; i++) {
+				if(acorde_arr[i].toLowerCase() == 'x')
+					r.xis[r.xis.length] = i;
+				else
+					r.circles[r.circles.length] = i;
+			}
+			r.disc = r.circles.shift();
+			return r;
+		},
+		dedos_pos = function(_absoluto) {
+			// #absoluto: true|false -> indica se as linhas retornadas deveram ser absolutas ou relativas a imagem de trastes (fretboard)
+			// retorna no formato(exemplo): 6 5 3 x 3 6 => [ [3, [2,4]], [5,1], [6, 0], [6, 5] ] => sempre retorna no máximo 4 elementos
+			var i = 0, apestanas = pestanas(), dedos = acorde, t = apestanas.length, posmap = [], posi, posf, ok,
+				fn = function(A, e, cmp) { return A[e][2] == cmp; }, tmp, fn_incluido = function(A, e, cmp) { return A[e][0] == cmp; }, pos,
+				absoluto = typeof _absoluto == 'undefined' ? true : false, cs_piso = root.casa_piso;
+
+			for(; i < t; i++) {
+				dedos = array_replace(dedos, apestanas[i][2], '-' + apestanas[i][2], apestanas[i][0], apestanas[i][0] + apestanas[i][1] - 1);
+			}
+			for(i = 0, t = dedos.length; i < t; i++) {
+				if(dedos[i] == '0' || dedos[i] == 'X') continue;
+				if(dedos[i].charAt(0) != '-') {
+					posmap[posmap.length] = [dedos[i], i];
+				} else {
+					tmp = array_filter(posmap, fn_incluido, null, -dedos[i] + '');
+					pos = tmp.length - 1;
+					if(tmp.length && tmp[pos][1] instanceof Array) {
+						posi = tmp[pos][1][0];
+						posf = tmp[pos][1][1] + tmp[pos][1][0] - 1;
+					} else if(tmp.length) {
+						posi = tmp[pos][1];
+						posf = tmp[pos][1];
+					}
+					if(!tmp.length || i < posi || i > posf) {
+						tmp = array_filter(apestanas, fn, null, -dedos[i] + '');
+						posmap[posmap.length] = [tmp[0][2], [tmp[0][0], tmp[0][1]] ];
+					}
+				}
+			}
+			posmap.sort(function(a, b) {
+				var x = +a[0], y = +b[0], posa = a[1] instanceof Array ? a[1][0] : a[1], posb = b[1] instanceof Array ? b[1][0] : b[1];
+				return x < y ? -1 : (x == y ? ( posa < posb ? -1 : 1 ) : 1);
+			});
+			return absoluto ? posmap : array_map(posmap, function(v) { v[0] = v[0] - cs_piso; return v; });
+		};
+
+	// métodos publicos
+	this.casas_visuais = function(v) {
+		// define ou devolve a quantidade de casas que serão mostradas no gráfico. o padrão é 5, definido nas propriedades privadas #casas_visuais
+		if(!arguments.length) return casas_visuais;
+		casas_visuais = v;
+		return root;
+	}
+	this.min = function() { return acorde[nmin]; }
+	this.max = function() { return acorde[nmax]; }
+	this.cordas_status = cordas_status;
+	this.dedos_pos = dedos_pos;
+	
+	// propriedades publicas
+	this.casa_piso = casa_piso();
 }
 
-function cordas(acorde_arr) {
-	// retorna um object('hash') indicando quais cordas nao serao tocadas, a primeira a ser tocada e as demais a serem tocadas
-	var i = 0, t = acorde_arr.length, r = {circles: [], disc: -1, xis: []};
+function array_repeated(arr, _min) {
+// retorna elementos repetidos que estejam repetidos #min ou mais vezes
+	var
+		min = (!_min || isNaN(_min) || _min < 1) && 1 || _min,
+		t = arr.length,
+		i = 0,
+		r = {};
+
 	for(; i < t; i++) {
-		if(acorde_arr[i].toLowerCase() == 'x')
-			r.xis[r.xis.length] = i;
-		else
-			r.circles[r.circles.length] = i;
+		if(!r[arr[i]])
+			r[arr[i]] = [];
+		r[arr[i]][r[arr[i]].length] = i;
 	}
-	r.disc = r.circles.shift();
+	if(min > 1) {
+		for(i in r) {
+			if((!(i in Object.prototype) || r[i] != Object.prototype[i]) && min > r[i].length)
+				delete r[i];
+		}
+	}
 	return r;
 }
-
-Array.prototype.indexesOf = function(value) {
-	// retorna todos os índicesdo array que são iguais a #value
-	var i = 0, t = this.length, r = [];
-	for(; i < t; i++) { if(this[i] === value) r[r.length] = i; }
+function array_indexes_of(arr, value, _restrito) {
+	// retorna todos os índices do array que são iguais a #value
+	var i = 0, t = arr.length, r = [], restrito = typeof _restrito == 'undefined' ? false : true,
+		fncmp = restrito ? function(a, b) { return a === b; } : function(a, b) { return a == b; };
+	for(; i < t; i++) { if(fncmp(arr[i], value)) r[r.length] = i; }
 	return r;
-};
+}
+function array_right_interval(arr, value) {
+// retorna o intervalo de indices iniciando do value encontrado mais a esquerda do array até o mais à direita.
+// os elementos entre as ocrrencias dos #value do array é que irao dizer de qual #value até qual #value cujos indices serao pego baseado no #fn_filter
+	var
+		posi = -1,
+		i = 0,
+		t,
+		ts,
+		arr_t = array_map(arr, function(v) { return isNaN(v) ? 1 : (v - value < 0 ? 0 : 1); }),
+		pos = array_indexes_of(arr, value);
+	
+	t = (arr_t = arr_t.join('').split('0')).length;
+	for(; --t > -1 && !arr_t[t];);
+	ts = arr_t[t] && arr_t[t].length || 0;
+	posi = (arr_t.length > 1 ? 1 : 0) + arr_t.slice(0, t).join('0').length;
+	return ts < 0 ? null : (posi < pos[0] ? [pos[0], ts + posi - pos[0]] : [posi, ts]);
+}
 
-Array.prototype.remove = function(indexes) {
+function array_map(arr, fn_filter) {
+	var i = 0, t = arr.length, r = [];
+	for(; i < t; i++)
+		r[r.length] = fn_filter(arr[i]);
+	return r;
+}
+function array_remove(arr, indexes) {
 	// remove os elementos de indíces iguais a #indexes (altera o array original)
 	indexes = indexes instanceof Array ? indexes : [indexes];
 	var t = indexes.length, r = [];
-	for(; --t > -1;) r[r.length] = this.splice(indexes[t], 1);
+	for(; --t > -1;) r[r.length] = arr.splice(indexes[t], 1);
 	return r.reverse();
-};
-
-function repeat_to_array(value, times) {
-	for(var r = []; times--; r[r.length] = value);
+}
+function array_unique(arr) {
+	var t = arr.length, i = 0, cp = arr.slice(0), r = [], els;
+	for(; i < t && cp.length; i++) {
+		els = array_remove(cp, array_indexes_of(cp, arr[i], true));
+		r[r.length] = els[0];
+	}
 	return r;
 }
-
-function array_rot(arr, num) {
-	// rotaciona um array para esquerda ou direita #num casas
-	var t = arr.length, r;
-	if(t == num) return arr;
-	if(num < 0) r = [].concat(arr.slice((-num) % t), arr.slice(0, (-num) % t));
-	else r = [].concat(arr.slice(t - (num % t)), arr.slice(0, t - (num % t)));
-	return r;
+function array_replace(arr, from, to, _posi, _posf) {
+	// substitui elementos iguais a #from por #to para elementos que estiverem entre #_posi e #_posf
+	var
+		posi = typeof _posi != 'undefined' ? _posi : 0,
+		posf = typeof _posf != 'undefined' ? _posf : arr.length - 1,
+		cp = arr.slice(0);
+	
+	for(; posi <= posf; posi++) {
+		if(cp[posi] == from) cp[posi] = to;
+	}
+	return cp;
 }
+function array_filter(arr, fn_filter, _max_el, _params) {
+	// pega os #_max_el primeiros elementos de #arr que respeitem o critério contido na funcao #fn_filter
+	var
+		i = 0,
+		t = arr.length,
+		max_el = typeof _max_el != 'undefined' && _max_el !== null ? _max_el : t,
+		r = [],
+		c = 0,
+		params = typeof _params != 'undefined' ? _params : [];
 
-function lesser_than(arr, num) {
-
-	var i = 0, t = arr.length, r = [];
-	for(; i < t; i++)
-		+arr[i] < num && (r[r.length] = arr[i]);
+	for(; i < t && c < max_el; i++) {
+		if(fn_filter.apply(false, [arr, i].concat(params))) {
+			r[c++] = arr[i];
+		}
+	}
 	return r;
 }
 
@@ -206,97 +356,12 @@ function max(arr, maxd) {
 	for(; i < t; i++) !isNaN(arr[i]) && arr[max] < arr[i] && maxd > arr[i] && (max = i);
 	return maxd > arr[max] ? max : -1;
 }
-function array_diff(a, b) {
-	// retorna o array #a menos o array #b
-	var r = a.slice(0), i, t1 = a.length, t2 = b.length;
-	for(; --t1 > -1;) {
-		for(i = 0; i < t2 && b[i] != a[t1]; i++);
-		if(b[i] == a[t1]) r.splice(t1, 1);
-	}
-	return r;
-}
-function is_enum(obj) {
-	return obj instanceof Array ? true : (typeof obj == 'object' ? true : false);
-}
-function merge_all(obj, recursive) {
-	var type = obj instanceof Array ? 'array' : (typeof obj == 'object' ? 'object' : false), r = [];
-	if(!type) return r;
-	
-	if(type == 'array') {
-		var i = 0, t = obj.length;
-		for(; i < t; i++) {
-			r = r.concat(is_enum(obj[i]) && recursive && merge_all(obj[i], true) || obj[i]);
-		}
-	} else {
-		for(var e in obj) {
-			if(!(e in Object.prototype)) {
-				r = r.concat(is_enum(obj[e]) && recursive && merge_all(obj[e], true) || obj[e]);
-			}
-		}
-	}
-	return r;
-}
-
-function object_remove_keys(obj, p) {
-	// p pode ser -function,-array,-!function
-	var r = {}, e;
-	if(typeof p == 'function') {
-		for(e in obj) {
-			if(!(e in Object.prototype) && p.call(false, obj, e)) {
-				r[e] = obj[e];
-				delete obj[e];
-			}
-		}
-	} else {
-		p = p instanceof Array ? p : [p];
-		var i = 0, t = p.length;
-		for(; i < t; i++) {
-			if(!(p[i] in Object.prototype) && p[i] in obj) {
-				r[p[i]] = obj[p[i]];
-				delete obj[p[i]];
-			}
-		}
-	}
-	return r;
-}
-
-function to_s(obj) {
-	var s = [], e, t = obj instanceof Array ? 'Array' : 'Object', cl;
-	cl = t == 'Array' ? ['[', ']'] : ['{', '}'];
-	for(e in obj) {
-		if(!(e in window[t].prototype)) s[s.length] = "\t" + e + " => " + obj[e];
-	}
-	return cl[0] + "\n" + s.join(",\n") + "\n" + cl[1];
-};
 function object_keys(obj, filter_fn) {
 	// pega todas as keys ou as que a callback filter_fn estabelece
 	var e, r = [];
 	filter_fn = filter_fn ? filter_fn : function() { return true; };
 	for(e in obj) {
-		if(!(e in Object.prototype)) filter_fn.call(false, obj, e) && (r[r.length] = e);
+		if(!(e in Object.prototype) || obj[e] != Object.prototype[e]) filter_fn.call(false, obj, e) && (r[r.length] = e);
 	}
 	return r;
 };
-function object_values(obj, filter_fn) {
-	// pega todas os values ou os que o callback filter_fn estabelece
-	var e, r = [];
-	filter_fn = filter_fn ? filter_fn : function() { return true; };
-	for(e in obj) {
-		if(!(e in Object.prototype)) filter_fn.call(false, obj, e) && (r[r.length] = obj[e]);
-	}
-	return r;
-};
-
-function object_num_keys(obj) {
-	var c = 0, e;
-	for(e in obj) c += e in Object.prototype ? 0 : 1;
-	return c;
-}
-
-function object_key(obj, index) {
-	var i = 0, e;
-	for(e in obj) {
-		if(i == index) break;
-	}
-	return typeof e == 'undefined' ? false : e;
-}
