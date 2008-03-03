@@ -2,7 +2,7 @@ var Acorde = function(acorde_arr) { // esperado um array com 6 elementos numéri
 	// dependencias: min(); max(); array_repeated(); object_num_keys();
 	// propriedades privadas
 	var
-		acorde = acorde_arr,
+		acorde = typeof acorde_arr == 'string' ? acorde_arr.split(' ') : acorde_arr,
 		root = this,
 		casas_visuais = 5,
 		nmin = min(acorde_arr, 0),
@@ -26,7 +26,7 @@ var Acorde = function(acorde_arr) { // esperado um array com 6 elementos numéri
 			return sequencia[0] + sequencia[1] - 1 == 5 ? sequencia : null;
 		},
 		pestanas = function() {
-			// retorna as pestanas que houver no acorde
+			// retorna as pestanas que houver no acorde no formato: [[v0, tam, casa]{1,3}]|null
 			var
 				hash = array_repeated(acorde, 2),
 				casas = object_keys(hash).sort(function(a, b) { return +a < +b ? -1 : 1; }),
@@ -40,15 +40,15 @@ var Acorde = function(acorde_arr) { // esperado um array com 6 elementos numéri
 				if(t == 2) {
 					intervalos = [array_right_interval(acorde, casas[0]), array_right_interval(acorde, casas[1])]; // [[a,b], [c,d]]
 					if(intervalos[0][0] + intervalos[0][1] >= intervalos[1][0] + intervalos[1][1]) {
-						return [array_right_interval(acorde, casas[0])];
+						return [array_right_interval(acorde, casas[0]).concat(casas[0])];
 					} else {
-						return [array_right_interval(acorde, casas[1])];
+						return [array_right_interval(acorde, casas[1]).concat(casas[0])];
 					}
 				}
-				return [array_right_interval(acorde, casas[0])]; // t = 1 nesse caso (obrigatoriamente)
+				return [array_right_interval(acorde, casas[0]).concat(casas[0])]; // t = 1 nesse caso (obrigatoriamente)
 			} else if(pressed == 6) {
 				if(hash[casas[0]].length > 2 && (tmp = pestana_fronteira(acorde, casas[0])))
-					return [tmp];
+					return [tmp.concat(casas[0])];
 
 				if(t > 1) {
 					// se chegou até aqui então haverá 2 pestanas (ou até 3, se é que existe acorde com 3 pestanas)
@@ -64,13 +64,59 @@ var Acorde = function(acorde_arr) { // esperado um array com 6 elementos numéri
 						var x, y;
 						return (x = a[0] + a[1]) > (y = b[0] + b[1]) ? -1 : ( x == y ? (+a[2] < +b[2] ? -1 : 1) : 1 );
 					});
-					intervalos = array_map(intervalos, function(e) { e.pop(); return e; });
 					return [intervalos[0], intervalos[1]];
 				}
-				return null;
+				return [];
 			} else {
-				return null;
+				return [];
 			}
+		},
+		cordas_status = function(acorde_arr) {
+			// retorna um object('hash') indicando quais cordas nao serao tocadas, a primeira a ser tocada e as demais a serem tocadas
+			var i = 0, t = acorde_arr.length, r = {circles: [], disc: -1, xis: []};
+			for(; i < t; i++) {
+				if(acorde_arr[i].toLowerCase() == 'x')
+					r.xis[r.xis.length] = i;
+				else
+					r.circles[r.circles.length] = i;
+			}
+			r.disc = r.circles.shift();
+			return r;
+		},
+		dedos_pos = function(absoluto) {
+			// #absoluto: true|false -> indica se as linhas retornadas deveram ser absolutas ou relativas a imagem de trastes (fretboard)
+			// retorna no formato(exemplo): 6 5 3 x 3 6 => [ [3, [2,4]], [5,1], [6, 0], [6, 5] ] => sempre retorna no máximo 4 elementos
+			var i = 0, apestanas = pestanas(), dedos = acorde, t = apestanas.length, posmap = [], posi, posf, ok,
+				fn = function(A, e, cmp) { return A[e][2] == cmp; }, tmp, fn_incluido = function(A, e, cmp) { return A[e][0] == cmp; }, pos;
+
+			for(; i < t; i++) {
+				dedos = array_replace(dedos, apestanas[i][2], '-' + apestanas[i][2], apestanas[i][0], apestanas[i][0] + apestanas[i][1] - 1);
+			}
+			for(i = 0, t = dedos.length; i < t; i++) {
+				if(dedos[i] == '0' || dedos[i] == 'X') continue;
+				if(dedos[i].charAt(0) != '-') {
+					posmap[posmap.length] = [dedos[i], i];
+				} else {
+					tmp = array_filter(posmap, fn_incluido, null, -dedos[i] + '');
+					pos = tmp.length - 1;
+					if(tmp.length && tmp[pos][1] instanceof Array) {
+						posi = tmp[pos][1][0];
+						posf = tmp[pos][1][1] + tmp[pos][1][0] - 1;
+					} else if(tmp.length) {
+						posi = tmp[pos][1];
+						posf = tmp[pos][1];
+					}
+					if(!tmp.length || i < posi || i > posf) {
+						tmp = array_filter(apestanas, fn, null, -dedos[i] + '');
+						posmap[posmap.length] = [tmp[0][2], [tmp[0][0], tmp[0][1]] ];
+					}
+				}
+			}
+			posmap.sort(function(a, b) {
+				var x = +a[0], y = +b[0], posa = a[1] instanceof Array ? a[1][0] : a[1], posb = b[1] instanceof Array ? b[1][0] : b[1];
+				return x < y ? -1 : (x == y ? ( posa < posb ? -1 : 1 ) : 1);
+			});
+			return posmap;
 		};
 
 	// métodos públicos
@@ -83,9 +129,10 @@ var Acorde = function(acorde_arr) { // esperado um array com 6 elementos numéri
 	this.min = function() { return acorde[nmin]; }
 	this.max = function() { return acorde[nmax]; }
 
-	// #parse precisa ser chamado para se iniciar todo o processo (método init())
-	this.parse = function() {
-		return to_s(pestanas());
+	// #render precisa ser chamado para se iniciar todo o processo (método init())
+	this.render = function() {
+		return to_s(dedos_pos());
+		
 	}
 }
 //alert(to_s(array_repeated([1,1,2,2,2,1], 2)));
@@ -152,14 +199,53 @@ function array_remove(arr, indexes) {
 	var t = indexes.length, r = [];
 	for(; --t > -1;) r[r.length] = arr.splice(indexes[t], 1);
 	return r.reverse();
-};
+}
+function array_unique(arr) {
+	var t = arr.length, i = 0, cp = arr.slice(0), r = [], els;
+	for(; i < t && cp.length; i++) {
+		els = array_remove(cp, array_indexes_of(cp, arr[i], true));
+		r[r.length] = els[0];
+	}
+	return r;
+}
+function array_replace(arr, from, to, _posi, _posf) {
+	// substitui elementos iguais a #from por #to para elementos que estiverem entre #_posi e #_posf
+	var
+		posi = typeof _posi != 'undefined' ? _posi : 0,
+		posf = typeof _posf != 'undefined' ? _posf : arr.length - 1,
+		cp = arr.slice(0);
+	
+	for(; posi <= posf; posi++) {
+		if(cp[posi] == from) cp[posi] = to;
+	}
+	return cp;
+}
+function array_filter(arr, fn_filter, _max_el, _params) {
+	// pega os #_max_el primeiros elementos de #arr que respeitem o critério contido na funcao #fn_filter
+	var
+		i = 0,
+		t = arr.length,
+		max_el = typeof _max_el != 'undefined' && _max_el !== null ? _max_el : t,
+		r = [],
+		c = 0,
+		params = typeof _params != 'undefined' ? _params : [];
+
+	for(; i < t && c < max_el; i++) {
+		if(fn_filter.apply(false, [arr, i].concat(params))) {
+			r[c++] = arr[i];
+		}
+	}
+	return r;
+}
+
 var b, a = ['11 10 8 8 11 11', '6 5 0 3 6 6', '6 5 3 3 6 6', '6 X X 7 6 10', 'X 11 X 13 13 11', 'X 8 10 10 10 8', 'X 0 11 X 10 0', 'X X 9 11 12 11',
 	'X X 2 4 4 4', 'X 1 5 5 5 3', '6 7 5 5 8 8', 'X 0 2 2 2 0', '3 5 5 4 3 3', '6 5 3 X 3 6', 'X 3 2 0 1 X', 'X 3 2 0 X 0'];
 $(function() {
 	for(var A, i = 0, t = a.length; i < t; i++) {
 		A = new Acorde(a[i].split(/\s+/));
-		$(document.body).append('<pre>' + a[i] + "\n" + A.parse() + '</pre>');
+		$(document.body).append('<pre>' + a[i] + "\n" + A.render() + '</pre>');
 	}
 });
+//alert(to_s(new Acorde('6 5 3 X 3 6').d()));
 //alert(array_right_interval([0, 0, 8, 8, 11, 11], 8));
 //alert(to_s(array_repeated([0, 0, 8, 8, 11, 11], 2)));
