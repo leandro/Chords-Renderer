@@ -27,7 +27,7 @@ var AcordeDOM = function(acorde_seletor) {
 		for(i = 0, o = cordas.circles, t = o.length; i < t; i++)
 			$(obj).append('<div class="acorde-bull acorde-bull-p' + o[i] + '"><img src="imagens/dec.circle.gif" width="5" height="5"></div>');
 		
-		// desenhando onde os dedos e como serao pressionados
+		// desenhando onde e como os dedos serao pressionados
 		for(i = 0, o = dedos_pos, t = o.length; i < t; i++) {
 			if(o[i][1] instanceof Array) { // pestana
 				dyf = root.pestana_top + o[i][0] * 12;
@@ -286,14 +286,6 @@ function array_remove(arr, indexes) {
 	var t = indexes.length, r = [];
 	for(; --t > -1;) r[r.length] = arr.splice(indexes[t], 1);
 	return r.reverse();
-}
-function array_unique(arr) {
-	var t = arr.length, i = 0, cp = arr.slice(0), r = [], els;
-	for(; i < t && cp.length; i++) {
-		els = array_remove(cp, array_indexes_of(cp, arr[i], true));
-		r[r.length] = els[0];
-	}
-	return r;
 }
 function array_replace(arr, from, to, _posi, _posf) {
 	// substitui elementos iguais a #from por #to para elementos que estiverem entre #_posi e #_posf
