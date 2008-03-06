@@ -52,19 +52,28 @@ var AcordeDOM = function(acorde_seletor) {
 				obj = $(this),
 				acorde_str,
 				acorde = (acorde_str = $.trim(obj.find('div:eq(1)').html())).split(/\s+/),
-				variacao_handler = new AcordeVariacao(acorde);
+				variacao_handler = new AcordeVariacao(acorde),
+				a_html;
 			
 			obj.attr('title', acorde_str);
 			obj.children().not('h4').hide();
-			obj.append('<h4 class="acorde-head"><div>' + obj.find('div:eq(0)').html() + '<a href="#">&raquo;</a></div></h4>');
 			obj.find('li').each(function() { variacao_handler.insere_variacao($(this).html().split(/\s+/)); });
+			a_html = variacao_handler.variacoes_qtde() > 1 ? '<a href="#" title="Variações">&raquo;</a>' : '';
+			obj.append('<h4 class="acorde-head"><div><span>' + obj.find('div:eq(0)').html() + '</span>' + a_html + '</div></h4>');
 			obj.find('a').bind('click', function() {
-				if(variacao_handler.variacoes_qtde() < 2) return false;
 				root.draw(obj, variacao_handler.prox_variacao());
+				if(variacao_handler.variacao_pos) {
+					obj.find('span.acorde-var').length || obj.find('h4.acorde-head span:eq(0)').after('<span class="acorde-var">(var.)</span>');
+				} else {
+					obj.find('span.acorde-var').remove();
+				}
 			});
 			Drag.init(obj.find('h4').get(0), obj.get(0));
 			root.draw(obj, acorde);
 		}).fadeTo('slow', 0.7);
+	}
+	this.print = function() {
+		//$(acorde_seletor) PAREI AQUI
 	}
 }
 var AcordeVariacao = function(acorde_arr) {
@@ -81,7 +90,7 @@ var AcordeVariacao = function(acorde_arr) {
 		return root;
 	})(acorde);
 	this.prox_variacao = function() {
-		return variacoes[++root.variacao_pos % variacoes.length];
+		return variacoes[root.variacao_pos = (root.variacao_pos + 1) % variacoes.length];
 	};
 	this.variacao_atual = function() {
 		return variacoes[root.variacao_pos];
@@ -144,14 +153,9 @@ var Acorde = function(acorde_arr) { // esperado um array com 6 elementos numéri
 
 				if(t > 1) {
 					// se chegou até aqui então haverá 2 pestanas (ou até 3, se é que existe acorde com 3 pestanas)
-					var
-						pnpc = [], // #pnpc(pestana na primeira corda): contem as casas cuja pestana vai até a primeira corda
-						intervalos = [],
-						soma_notas = 0;
+					var intervalos = [];
 
-					for(; i < t; i++) {
-						intervalos[intervalos.length] = array_right_interval(acorde, casas[i]).concat(casas[i]);
-					}
+					for(; i < t; i++) intervalos[intervalos.length] = array_right_interval(acorde, casas[i]).concat(casas[i]);
 					intervalos.sort(function(a, b) {
 						var x, y;
 						return (x = a[0] + a[1]) > (y = b[0] + b[1]) ? -1 : ( x == y ? (+a[2] < +b[2] ? -1 : 1) : 1 );
