@@ -1,5 +1,5 @@
 $(function() {
-	A = new AcordeDOM('.js-acorde');
+	A = new AcordeDOM('div.js-acorde');
 	A.render();
 });
 
@@ -11,14 +11,19 @@ var AcordeDOM = function(acorde_seletor) {
 	this.pestana_top = 21;
 	this.dedo_left = 10;
 	this.dedo_top = 18;
+	this.intervalo_x = 11;
+	this.intervalo_y = 12;
+	
+	// métodos públicos
 	this.draw = function(obj, _acorde) {
 		var
-			acorde = new Acorde(_acorde instanceof Array ? _acorde : _acorde.split(/\s+/)),
+			acorde = new Acorde(_acorde = _acorde instanceof Array ? _acorde : _acorde.split(/\s+/)),
 			cordas = acorde.cordas_status(),
 			dedos_pos = acorde.dedos_pos(false),
 			i, t, o, dyf, dxf, dw, tmp;
 				
 		$('h4', obj).nextAll().remove();
+		$(obj).attr('title', _acorde.join(' '));
 		
 		// renderizando quais cordas serao pressionadas e etc.
 		$(obj).append('<div class="acorde-bull acorde-bull-p' + cordas.disc + '"><img src="imagens/dec.disc.gif" width="5" height="5"></div>');
@@ -30,13 +35,13 @@ var AcordeDOM = function(acorde_seletor) {
 		// desenhando onde e como os dedos serao pressionados
 		for(i = 0, o = dedos_pos, t = o.length; i < t; i++) {
 			if(o[i][1] instanceof Array) { // pestana
-				dyf = root.pestana_top + o[i][0] * 12;
-				dxf = root.pestana_left + o[i][1][0] * 11;
+				dyf = root.pestana_top + o[i][0] * root.intervalo_y;
+				dxf = root.pestana_left + o[i][1][0] * root.intervalo_x;
 				dw = (o[i][1][1] - 1) * 11 + 5;
 				$(obj).append('<div class="acorde-pestana" style="left:' + dxf + 'px;top:' + dyf + 'px;width:' + dw + 'px;"></div>');
 			} else { // dedos em uma unica nota
-				dyf = root.dedo_top + o[i][0] * 12;
-				dxf = root.dedo_left + o[i][1] * 11;
+				dyf = root.dedo_top + o[i][0] * root.intervalo_y;
+				dxf = root.dedo_left + o[i][1] * root.intervalo_x;
 				$(obj).append('<div class="acorde-dedo" style="left:' + dxf + 'px;top:' + dyf +
 					'px;"><img src="imagens/dec.dedo' + (i + 1) + '.gif" width+"9" height="9" /></div>');
 			}
@@ -67,6 +72,7 @@ var AcordeDOM = function(acorde_seletor) {
 				} else {
 					obj.find('span.acorde-var').remove();
 				}
+				return false;
 			});
 			Drag.init(obj.find('h4').get(0), obj.get(0));
 			root.draw(obj, acorde);
