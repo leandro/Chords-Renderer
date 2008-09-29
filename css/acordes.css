@@ -35,6 +35,21 @@ body,form,ol,ul,li,p,h1,h2,h3,h4,h5,h6,table,tr,td,img,dt,dd,dl {border-width:0;
 .acorde-pestana {background:#d00;height:3px;overflow:hidden;position:absolute;}
 .acorde-pricasa {color:#900;font-size:10px;left:0;position:absolute;text-align:right;top:16px;width:10px;}
 .acorde-var {color:#dd0;font-size:9px;font-weight:normal;padding-left:3px;}
+
+.js-acorde-print {
+  float:left;
+}
+.acorde-print {
+  font:12px courier,'courier new',monospace;
+  margin:0 20px 20px 0;
+  white-space:pre;
+}
+.acorde-print-head {
+  font:12px tahoma,verdana,sans-serif;
+  text-transform:uppercase;
+  padding-left:3em;
+}
+
 /*
 .notext {font-size:0;letter-spacing:-2000px;overflow:hidden;text-decoration:none;text-indent:-2000px;}
 */

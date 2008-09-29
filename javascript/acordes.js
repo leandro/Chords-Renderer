@@ -1,8 +1,3 @@
-$(function() {
-	A = new AcordeDOM('div.js-acorde');
-	A.render();
-});
-
 var AcordeDOM = function(acorde_seletor) {
 	var root = this;
 	
@@ -51,6 +46,66 @@ var AcordeDOM = function(acorde_seletor) {
 		if(acorde.casa_piso > 1)
 			$(obj).append(['<div class="acorde-pricasa">' + acorde.casa_piso + '</div>'].join(''));
 	};
+
+  this.print_draw = function(obj, _acorde) {
+		var
+			acorde = new Acorde(_acorde = _acorde instanceof Array ? _acorde : _acorde.split(/\s+/)),
+			cordas = acorde.cordas_status(),
+			dedos_pos = acorde.dedos_pos(false),
+      linha_sep = "    ===========\n",
+      linha_ini = "    ",
+      cordas_map = {x: 'X', d: 'P', c: 'O'},
+      ncordas = 6,
+      casas = str_repeat('| ', ncordas),
+      buffer = '',
+      dedo_cur = 0,
+      menor_traste = acorde.casa_piso,
+      casa_ini,
+      acorde_tam,
+			i, t, o, row, col, s;
+
+		$('h4', obj).nextAll().remove();
+		$(obj).attr('title', _acorde.join(' '));
+    $("<div class='acorde-print'>" + linha_sep + "</div>").appendTo(obj);
+
+		// desenhando onde e como os dedos serao pressionados
+		for(i = 0, o = dedos_pos, t = acorde.casas_visuais() * ncordas; i < t; i++) {
+
+      if(!i && menor_traste > 1)
+        buffer += "[" + (menor_traste < 10 ? '0' : '') + menor_traste + "]";
+
+      row = Math.floor(i / ncordas); 
+      col = i % ncordas;
+      s = !col ? (!i && menor_traste > 1 ? '' : linha_ini) : '';
+      if(dedo_cur >= o.length || row != o[dedo_cur][0]) {
+        buffer +=  s + casas.substr(col * 2) + "\n";
+        i += ncordas - col - 1;
+        continue;
+      }
+
+      tmp = o[dedo_cur][1] instanceof Array ? o[dedo_cur][1] : [o[dedo_cur][1], 1];
+      casa_ini = tmp[0];
+      acorde_tam = tmp[1];
+      if(col != casa_ini) {
+        buffer += s + casas.substr(col * 2, (casa_ini - col) * 2);
+        i += casa_ini - col - 1;
+        continue;
+      }
+
+      buffer += s + str_repeat(dedo_cur + 1 + ' ', acorde_tam) + (col + acorde_tam == ncordas ? "\n" : '');
+      i += acorde_tam - 1;
+      dedo_cur++;
+
+		}
+    $('div.acorde-print', obj).append(buffer);
+
+		// rodapé
+    $('div.acorde-print', obj).append(linha_sep + linha_ini);
+    for(i = 0, o = cordas.all, t = o.length; i < t; i++)
+      $('div.acorde-print', obj).append(cordas_map[o[i]] + " ");
+		
+  }
+
 	this.render = function() {
 		$(acorde_seletor).each(function() {
 			var
@@ -78,8 +133,19 @@ var AcordeDOM = function(acorde_seletor) {
 			root.draw(obj, acorde);
 		}).fadeTo('slow', 0.7);
 	}
-	this.print = function() {
-		//$(acorde_seletor) PAREI AQUI
+	this.render_print = function() {
+		$(acorde_seletor).each(function() {
+      var
+        obj = $(this),
+        acorde_str,
+        acorde = (acorde_str = $.trim(obj.find('div:eq(1)').html())).split(/\s+/),
+        a_html;
+        
+      obj.attr('title', acorde_str);
+      obj.children().not('h4').hide();
+      obj.append('<h4 class="acorde-print-head">' + $('div:eq(0)', obj).text() + '</h4>');
+      root.print_draw(obj, acorde);
+    });
 	}
 }
 var AcordeVariacao = function(acorde_arr) {
@@ -126,7 +192,7 @@ var Acorde = function(acorde_arr) { // esperado um array com 6 elementos numéri
 		},
 		casa_piso = function() {
 			// retorna a menor casa visualmente falando
-			return casas_visuais >= acorde[nmax] ? 1 : acorde[nmin];
+			return casas_visuais >= acorde[nmax] ? 1 : +acorde[nmin];
 		},
 		pestana_fronteira = function(acorde, casa) {
 			var sequencia = array_right_interval(acorde, casa); // [inicio, casas]
@@ -175,14 +241,21 @@ var Acorde = function(acorde_arr) { // esperado um array com 6 elementos numéri
 		},
 		cordas_status = function() {
 			// retorna um object('hash') indicando quais cordas nao serao tocadas, a primeira a ser tocada e as demais a serem tocadas
-			var i = 0, t = acorde.length, r = {circles: [], disc: -1, xis: []};
+			var i = 0, t = acorde.length, r = {circles: [], disc: -1, xis: []}, arr = [];
+
 			for(; i < t; i++) {
-				if(acorde_arr[i].toLowerCase() == 'x')
+				if(acorde_arr[i].toLowerCase() == 'x') {
+          arr[i] = 'x';
 					r.xis[r.xis.length] = i;
-				else
+        } else {
 					r.circles[r.circles.length] = i;
+          arr[i] = 'c';
+        }
 			}
+
 			r.disc = r.circles.shift();
+      arr[r.disc] = 'd';
+      r.all = arr;
 			return r;
 		},
 		dedos_pos = function(_absoluto) {
@@ -236,6 +309,11 @@ var Acorde = function(acorde_arr) { // esperado um array com 6 elementos numéri
 	
 	// propriedades publicas
 	this.casa_piso = casa_piso();
+}
+
+function str_repeat(str, n) {
+  for(var f = ''; n--; f += str);
+  return f;
 }
 
 function array_repeated(arr, _min) {
