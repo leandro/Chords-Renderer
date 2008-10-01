@@ -38,15 +38,38 @@ body,form,ol,ul,li,p,h1,h2,h3,h4,h5,h6,table,tr,td,img,dt,dd,dl {border-width:0;
 
 .js-acorde-print {
   float:left;
+  margin:0 20px 20px 0;
+}
+.js-acorde-print pre {
+  margin:0;
+  padding:0;
 }
 .acorde-print {
   font:12px courier,'courier new',monospace;
-  margin:0 20px 20px 0;
 }
 .acorde-print-head {
   font:12px tahoma,verdana,sans-serif;
   text-transform:uppercase;
-  padding-left:3em;
+  padding-left:30px;
+}
+.acorde-print-head div {
+  padding:0 4px;
+  position:relative;
+}
+.acorde-print-head a {
+  color:#db0;
+  display:block;
+  font-weight:700;
+  position:absolute;
+  right:15px;
+  text-decoration:none;
+  top:0;
+}
+.acorde-var {
+  color:#dd0;
+  font-size:9px;
+  font-weight:normal;
+  padding-left:3px;
 }
 
 /*

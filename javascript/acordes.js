@@ -143,11 +143,24 @@ var AcordeDOM = function(acorde_seletor) {
         obj = $(this),
         acorde_str,
         acorde = (acorde_str = $.trim(obj.find('div:eq(1)').html())).split(/\s+/),
+				variacao_handler = new AcordeVariacao(acorde),
         a_html;
         
       obj.attr('title', acorde_str);
       obj.children().not('h4').hide();
-      obj.append('<h4 class="acorde-print-head">' + $('div:eq(0)', obj).text() + '</h4>');
+			obj.find('li').each(function() { variacao_handler.insere_variacao($(this).html().split(/\s+/)); });
+			a_html = variacao_handler.variacoes_qtde() > 1 ? '<a href="#" title="Variações">&raquo;</a>' : '';
+			obj.append('<h4 class="acorde-print-head"><div><span>' + obj.find('div:eq(0)').html() + '</span>' + a_html + '</div></h4>');
+			obj.find('a').bind('click', function() {
+				root.print_draw(obj, variacao_handler.prox_variacao());
+				if(variacao_handler.variacao_pos) {
+					obj.find('span.acorde-var').length || obj.find('h4.acorde-print-head span:eq(0)').after('<span class="acorde-var">(var.)</span>');
+				} else {
+					obj.find('span.acorde-var').remove();
+				}
+				return false;
+			});
+
       root.print_draw(obj, acorde);
     });
 	}
