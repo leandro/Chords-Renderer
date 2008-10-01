@@ -42,7 +42,6 @@ body,form,ol,ul,li,p,h1,h2,h3,h4,h5,h6,table,tr,td,img,dt,dd,dl {border-width:0;
 .acorde-print {
   font:12px courier,'courier new',monospace;
   margin:0 20px 20px 0;
-  white-space:pre;
 }
 .acorde-print-head {
   font:12px tahoma,verdana,sans-serif;

@@ -62,11 +62,12 @@ var AcordeDOM = function(acorde_seletor) {
       menor_traste = acorde.casa_piso,
       casa_ini,
       acorde_tam,
-			i, t, o, row, col, s;
+			i, t, o, row, col, s, objt;
 
 		$('h4', obj).nextAll().remove();
 		$(obj).attr('title', _acorde.join(' '));
-    $("<div class='acorde-print'>" + linha_sep + "</div>").appendTo(obj);
+    objt = $("<pre class='acorde-print'></pre>").appendTo(obj);
+    $(objt).text(linha_sep);
 
 		// desenhando onde e como os dedos serao pressionados
 		for(i = 0, o = dedos_pos, t = acorde.casas_visuais() * ncordas; i < t; i++) {
@@ -96,13 +97,16 @@ var AcordeDOM = function(acorde_seletor) {
       i += acorde_tam - 1;
       dedo_cur++;
 
-		}
-    $('div.acorde-print', obj).append(buffer);
+    }
+    // not using traditional jQuery .html() because IE is a bitch
+    $(objt).replaceWith("<pre class='acorde-print'>" + $(objt).text() + buffer + "</pre>");
 
 		// rodapé
-    $('div.acorde-print', obj).append(linha_sep + linha_ini);
+    buffer = linha_sep + linha_ini;
     for(i = 0, o = cordas.all, t = o.length; i < t; i++)
-      $('div.acorde-print', obj).append(cordas_map[o[i]] + " ");
+      buffer += cordas_map[o[i]] + " ";
+
+    (objt = $('pre.acorde-print', obj)).replaceWith("<pre class='acorde-print'>" + $(objt).text() + buffer + "</pre>");
 		
   }
 
