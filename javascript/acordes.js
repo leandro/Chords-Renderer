@@ -117,15 +117,17 @@ var AcordeDOM = function(acorde_seletor) {
 				acorde_str,
 				acorde = (acorde_str = $.trim(obj.find('div:eq(1)').html())).split(/\s+/),
 				variacao_handler = new AcordeVariacao(acorde),
-				a_html;
+        a_html,
+        var_meth = {'vari-l': variacao_handler.ante_variacao, 'vari-r': variacao_handler.prox_variacao};
 			
 			obj.attr('title', acorde_str);
 			obj.children().not('h4').hide();
 			obj.find('li').each(function() { variacao_handler.insere_variacao($(this).html().split(/\s+/)); });
-			a_html = variacao_handler.variacoes_qtde() > 1 ? '<a href="#" title="Variações">&raquo;</a>' : '';
+			a_html = variacao_handler.variacoes_qtde() > 1 ?
+        '<a href="#" class="vari-l" title="Variações">&laquo;</a> <a href="#" class="vari-r" title="Variações">&raquo;</a>' : '';
 			obj.append('<h4 class="acorde-head"><div><span>' + obj.find('div:eq(0)').html() + '</span>' + a_html + '</div></h4>');
 			obj.find('a').bind('click', function() {
-				root.draw(obj, variacao_handler.prox_variacao());
+				root.draw(obj, var_meth[$(this).attr('class')]());
 				if(variacao_handler.variacao_pos) {
 					obj.find('span.acorde-var').length || obj.find('h4.acorde-head span:eq(0)').after('<span class="acorde-var">(var.)</span>');
 				} else {
@@ -144,15 +146,17 @@ var AcordeDOM = function(acorde_seletor) {
         acorde_str,
         acorde = (acorde_str = $.trim(obj.find('div:eq(1)').html())).split(/\s+/),
 				variacao_handler = new AcordeVariacao(acorde),
-        a_html;
-        
+        a_html,
+        var_meth = {'vari-l': variacao_handler.ante_variacao, 'vari-r': variacao_handler.prox_variacao};
+
       obj.attr('title', acorde_str);
       obj.children().not('h4').hide();
 			obj.find('li').each(function() { variacao_handler.insere_variacao($(this).html().split(/\s+/)); });
-			a_html = variacao_handler.variacoes_qtde() > 1 ? '<a href="#" title="Variações">&raquo;</a>' : '';
+			a_html = variacao_handler.variacoes_qtde() > 1 ?
+        '<a href="#" class="vari-l" title="Variações">&laquo;</a> <a href="#" class="vari-r" title="Variações">&raquo;</a>' : '';
 			obj.append('<h4 class="acorde-print-head"><div><span>' + obj.find('div:eq(0)').html() + '</span>' + a_html + '</div></h4>');
 			obj.find('a').bind('click', function() {
-				root.print_draw(obj, variacao_handler.prox_variacao());
+				root.print_draw(obj, var_meth[$(this).attr('class')]());
 				if(variacao_handler.variacao_pos) {
 					obj.find('span.acorde-var').length || obj.find('h4.acorde-print-head span:eq(0)').after('<span class="acorde-var">(var.)</span>');
 				} else {
@@ -178,6 +182,10 @@ var AcordeVariacao = function(acorde_arr) {
 		variacoes[variacoes.length] = acorde_arr;
 		return root;
 	})(acorde);
+	this.ante_variacao = function() {
+    var tmp;
+		return variacoes[root.variacao_pos = ( (tmp = root.variacao_pos - 1) < 0 ? variacoes.length - 1 : tmp) % variacoes.length];
+	};
 	this.prox_variacao = function() {
 		return variacoes[root.variacao_pos = (root.variacao_pos + 1) % variacoes.length];
 	};
